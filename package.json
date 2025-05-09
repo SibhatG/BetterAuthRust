@@ -1,0 +1,21 @@
+{
+  "name": "workspace",
+  "version": "1.0.0",
+  "description": "A comprehensive authentication system built in Rust that provides secure user registration, login, session management, and access control.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^22.15.17",
+    "axios": "^1.9.0",
+    "typescript": "^5.8.3"
+  }
+}

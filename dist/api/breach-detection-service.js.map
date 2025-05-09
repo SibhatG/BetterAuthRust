@@ -1,0 +1,1 @@
+{"version":3,"file":"breach-detection-service.js","sourceRoot":"","sources":["../../src/api/breach-detection-service.ts"],"names":[],"mappings":";AAAA;;GAEG;;;AAKH,MAAa,sBAAsB;IAGjC,YAAY,SAAoB;QAC9B,IAAI,CAAC,SAAS,GAAG,SAAS,CAAC;IAC7B,CAAC;IAED;;OAEG;IACI,KAAK,CAAC,iBAAiB;QAC5B,OAAO,IAAI,CAAC,SAAS,CAAC,GAAG,CAAoB,4BAA4B,CAAC,CAAC;IAC7E,CAAC;CACF;AAbD,wDAaC"}

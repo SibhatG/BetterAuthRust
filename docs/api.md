@@ -1,422 +1,530 @@
-# Better Auth Rust - API Documentation
+# Better Auth API Documentation
 
-This document provides comprehensive documentation for the Better Auth Rust authentication system API.
+## Authentication Endpoints
 
-## Base URL
+### Register a New User
 
-All API endpoints are relative to: `http://localhost:5000/api/`
+`POST /api/auth/register`
 
-## Authentication
+Creates a new user account.
 
-Most endpoints require authentication using a Bearer token. To authenticate requests, include an `Authorization` header with a JWT token:
-
-```
-Authorization: Bearer <your_access_token>
-```
-
-## Endpoints
-
-### User Registration and Authentication
-
-#### Register a new user
-
-- **URL**: `/auth/register`
-- **Method**: `POST`
-- **Auth required**: No
-- **Request body**:
-  ```json
-  {
-    "username": "johndoe",
-    "email": "johndoe@example.com",
-    "password": "securepassword",
-    "password_confirmation": "securepassword"
-  }
-  ```
-- **Success Response**:
-  - **Code**: 201 Created
-  - **Content**:
-    ```json
-    {
-      "user": {
-        "id": "123e4567-e89b-12d3-a456-426614174000",
-        "username": "johndoe",
-        "email": "johndoe@example.com",
-        "is_email_verified": false,
-        "mfa_enabled": false,
-        "created_at": "2023-01-01T00:00:00Z",
-        "updated_at": "2023-01-01T00:00:00Z",
-        "last_login_at": null,
-        "is_active": true,
-        "is_admin": false
-      },
-      "message": "User registered successfully. Please check your email to verify your account."
-    }
-    ```
-
-#### Login
-
-- **URL**: `/auth/login`
-- **Method**: `POST`
-- **Auth required**: No
-- **Request body**:
-  ```json
-  {
-    "username_or_email": "johndoe@example.com",
-    "password": "securepassword"
-  }
-  ```
-- **Success Response**:
-  - **Code**: 200 OK
-  - **Content**:
-    ```json
-    {
-      "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-      "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-      "token_type": "Bearer",
-      "expires_in": 3600,
-      "user": {
-        "id": "123e4567-e89b-12d3-a456-426614174000",
-        "username": "johndoe",
-        "email": "johndoe@example.com",
-        "is_email_verified": true,
-        "mfa_enabled": false,
-        "created_at": "2023-01-01T00:00:00Z",
-        "updated_at": "2023-01-01T00:00:00Z",
-        "last_login_at": "2023-01-01T00:00:00Z",
-        "is_active": true,
-        "is_admin": false
-      },
-      "mfa_required": false
-    }
-    ```
-
-#### MFA Login (when MFA is enabled)
-
-- **URL**: `/auth/mfa-login`
-- **Method**: `POST`
-- **Auth required**: No
-- **Request body**:
-  ```json
-  {
-    "username_or_email": "johndoe@example.com",
-    "password": "securepassword",
-    "mfa_code": "123456"
-  }
-  ```
-- **Success Response**: Same as regular login
-
-#### Refresh Token
-
-- **URL**: `/auth/refresh-token`
-- **Method**: `POST`
-- **Auth required**: No
-- **Request body**:
-  ```json
-  {
-    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-  }
-  ```
-- **Success Response**:
-  - **Code**: 200 OK
-  - **Content**:
-    ```json
-    {
-      "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-      "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-      "token_type": "Bearer",
-      "expires_in": 3600
-    }
-    ```
-
-#### Logout
-
-- **URL**: `/auth/logout`
-- **Method**: `POST`
-- **Auth required**: Yes
-- **Request body**:
-  ```json
-  {
-    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-  }
-  ```
-- **Success Response**:
-  - **Code**: 200 OK
-  - **Content**:
-    ```json
-    {
-      "message": "Successfully logged out"
-    }
-    ```
-
-#### Logout from all devices
-
-- **URL**: `/auth/logout-all`
-- **Method**: `POST`
-- **Auth required**: Yes
-- **Success Response**:
-  - **Code**: 200 OK
-  - **Content**:
-    ```json
-    {
-      "message": "Successfully logged out from all devices"
-    }
-    ```
-
-### Email Verification
-
-#### Verify Email
-
-- **URL**: `/auth/verify-email`
-- **Method**: `POST`
-- **Auth required**: No
-- **Request body**:
-  ```json
-  {
-    "token": "verification-token"
-  }
-  ```
-- **Success Response**:
-  - **Code**: 200 OK
-  - **Content**:
-    ```json
-    {
-      "message": "Email verified successfully"
-    }
-    ```
-
-#### Resend Verification Email
-
-- **URL**: `/auth/resend-verification-email`
-- **Method**: `POST`
-- **Auth required**: Yes
-- **Success Response**:
-  - **Code**: 200 OK
-  - **Content**:
-    ```json
-    {
-      "message": "Verification email sent successfully"
-    }
-    ```
-
-### Password Reset
-
-#### Request Password Reset
-
-- **URL**: `/auth/password-reset`
-- **Method**: `POST`
-- **Auth required**: No
-- **Request body**:
-  ```json
-  {
-    "email": "johndoe@example.com"
-  }
-  ```
-- **Success Response**:
-  - **Code**: 200 OK
-  - **Content**:
-    ```json
-    {
-      "message": "If your email is registered, you will receive a password reset link"
-    }
-    ```
-
-#### Confirm Password Reset
-
-- **URL**: `/auth/password-reset-confirm`
-- **Method**: `POST`
-- **Auth required**: No
-- **Request body**:
-  ```json
-  {
-    "token": "reset-token",
-    "password": "newpassword",
-    "password_confirmation": "newpassword"
-  }
-  ```
-- **Success Response**:
-  - **Code**: 200 OK
-  - **Content**:
-    ```json
-    {
-      "message": "Password reset successfully"
-    }
-    ```
-
-### Multi-Factor Authentication (MFA)
-
-#### Setup MFA
-
-- **URL**: `/auth/mfa-setup`
-- **Method**: `GET`
-- **Auth required**: Yes
-- **Success Response**:
-  - **Code**: 200 OK
-  - **Content**:
-    ```json
-    {
-      "secret": "JBSWY3DPEHPK3PXP",
-      "qr_code_url": "otpauth://totp/BetterAuth:johndoe@example.com?secret=JBSWY3DPEHPK3PXP&issuer=BetterAuth"
-    }
-    ```
-
-#### Enable MFA
-
-- **URL**: `/auth/mfa-enable`
-- **Method**: `POST`
-- **Auth required**: Yes
-- **Request body**:
-  ```json
-  {
-    "mfa_code": "123456"
-  }
-  ```
-- **Success Response**:
-  - **Code**: 200 OK
-  - **Content**:
-    ```json
-    {
-      "message": "MFA enabled successfully",
-      "recovery_codes": [
-        "1234-5678-9012",
-        "2345-6789-0123",
-        "3456-7890-1234",
-        "4567-8901-2345",
-        "5678-9012-3456",
-        "6789-0123-4567",
-        "7890-1234-5678",
-        "8901-2345-6789"
-      ]
-    }
-    ```
-
-#### Disable MFA
-
-- **URL**: `/auth/mfa-disable`
-- **Method**: `POST`
-- **Auth required**: Yes
-- **Request body**:
-  ```json
-  {
-    "mfa_code": "123456",
-    "password": "securepassword"
-  }
-  ```
-- **Success Response**:
-  - **Code**: 200 OK
-  - **Content**:
-    ```json
-    {
-      "message": "MFA disabled successfully"
-    }
-    ```
-
-#### Get Recovery Codes
-
-- **URL**: `/auth/mfa-recovery-codes`
-- **Method**: `GET`
-- **Auth required**: Yes
-- **Success Response**:
-  - **Code**: 200 OK
-  - **Content**:
-    ```json
-    {
-      "recovery_codes": [
-        "1234-5678-9012",
-        "2345-6789-0123",
-        "3456-7890-1234",
-        "4567-8901-2345",
-        "5678-9012-3456",
-        "6789-0123-4567",
-        "7890-1234-5678",
-        "8901-2345-6789"
-      ]
-    }
-    ```
-
-#### MFA Recovery
-
-- **URL**: `/auth/mfa-recovery`
-- **Method**: `POST`
-- **Auth required**: No
-- **Request body**:
-  ```json
-  {
-    "recovery_code": "1234-5678-9012"
-  }
-  ```
-- **Success Response**: Same as regular login
-
-### User Management
-
-#### Get Current User
-
-- **URL**: `/users/me`
-- **Method**: `GET`
-- **Auth required**: Yes
-- **Success Response**:
-  - **Code**: 200 OK
-  - **Content**:
-    ```json
-    {
-      "id": "123e4567-e89b-12d3-a456-426614174000",
-      "username": "johndoe",
-      "email": "johndoe@example.com",
-      "is_email_verified": true,
-      "mfa_enabled": true,
-      "created_at": "2023-01-01T00:00:00Z",
-      "updated_at": "2023-01-01T00:00:00Z",
-      "last_login_at": "2023-01-01T00:00:00Z",
-      "is_active": true,
-      "is_admin": false
-    }
-    ```
-
-#### Get User Sessions
-
-- **URL**: `/users/sessions`
-- **Method**: `GET`
-- **Auth required**: Yes
-- **Success Response**:
-  - **Code**: 200 OK
-  - **Content**:
-    ```json
-    [
-      {
-        "id": "123e4567-e89b-12d3-a456-426614174000",
-        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-        "ip_address": "192.168.1.1",
-        "created_at": "2023-01-01T00:00:00Z",
-        "expires_at": "2023-01-08T00:00:00Z",
-        "is_current": true
-      },
-      {
-        "id": "223e4567-e89b-12d3-a456-426614174000",
-        "user_agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1",
-        "ip_address": "192.168.1.2",
-        "created_at": "2023-01-02T00:00:00Z",
-        "expires_at": "2023-01-09T00:00:00Z",
-        "is_current": false
-      }
-    ]
-    ```
-
-## Error Responses
-
-All endpoints return standardized error responses in the following format:
+**Request Body:**
 
 ```json
 {
-  "status": "error",
-  "code": "ERROR_CODE",
-  "message": "A human-readable error message",
-  "details": {}  // Optional additional error details
+  "username": "johndoe",
+  "email": "john@example.com",
+  "password": "securePassword123",
+  "password_confirmation": "securePassword123"
 }
 ```
 
-Common error codes:
-- `VALIDATION_ERROR`: Request validation failed
-- `AUTHENTICATION_ERROR`: Authentication failed
-- `AUTHORIZATION_ERROR`: User is not authorized to perform the action
-- `NOT_FOUND`: Requested resource not found
-- `CONFLICT`: Resource conflict, e.g., username already exists
-- `INTERNAL_ERROR`: Server internal error
+**Success Response: 201 Created**
+
+```json
+{
+  "user": {
+    "id": "e29a9d8a-7c2f-4bc1-a533-b7d60979bf54",
+    "username": "johndoe",
+    "email": "john@example.com",
+    "is_email_verified": false,
+    "mfa_enabled": false
+  },
+  "message": "User registered successfully. Please check your email to verify your account."
+}
+```
+
+**Error Responses:**
+
+- `400 Bad Request`: Validation error, username exists, or email exists
+- `500 Internal Server Error`: Server error
+
+### Login
+
+`POST /api/auth/login`
+
+Authenticates a user and returns access tokens.
+
+**Request Body:**
+
+```json
+{
+  "username_or_email": "johndoe",
+  "password": "securePassword123"
+}
+```
+
+**Success Response: 200 OK**
+
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refresh_token": "a722c63c-d1d1-4859-8fc9-27b2b8f69d0a",
+  "token_type": "Bearer",
+  "expires_in": 3600,
+  "user": {
+    "id": "e29a9d8a-7c2f-4bc1-a533-b7d60979bf54",
+    "username": "johndoe",
+    "email": "john@example.com",
+    "is_email_verified": false,
+    "mfa_enabled": false
+  }
+}
+```
+
+**Error Responses:**
+
+- `401 Unauthorized`: Invalid credentials
+- `500 Internal Server Error`: Server error
+
+### Get Current User
+
+`GET /api/users/me`
+
+Returns the currently authenticated user's details.
+
+**Request Headers:**
+
+```
+Authorization: Bearer <access_token>
+```
+
+**Success Response: 200 OK**
+
+```json
+{
+  "id": "e29a9d8a-7c2f-4bc1-a533-b7d60979bf54",
+  "username": "johndoe",
+  "email": "john@example.com",
+  "is_email_verified": false,
+  "mfa_enabled": false
+}
+```
+
+**Error Responses:**
+
+- `401 Unauthorized`: Authentication required
+- `500 Internal Server Error`: Server error
+
+## WebAuthn Endpoints
+
+### Start WebAuthn Registration
+
+`POST /api/auth/webauthn/register/start`
+
+Starts the registration process for a new WebAuthn credential.
+
+**Request Headers:**
+
+```
+Authorization: Bearer <access_token>
+```
+
+**Success Response: 200 OK**
+
+```json
+{
+  "challenge": "randomChallenge",
+  "rp": {
+    "id": "better-auth.example.com",
+    "name": "Better Auth"
+  },
+  "user": {
+    "id": "base64UserId",
+    "name": "johndoe",
+    "displayName": "John Doe"
+  },
+  "pubKeyCredParams": [
+    { "type": "public-key", "alg": -7 },
+    { "type": "public-key", "alg": -257 }
+  ],
+  "timeout": 60000,
+  "attestation": "direct",
+  "excludeCredentials": []
+}
+```
+
+**Error Responses:**
+
+- `401 Unauthorized`: Authentication required
+- `500 Internal Server Error`: Server error
+
+### Complete WebAuthn Registration
+
+`POST /api/auth/webauthn/register/complete`
+
+Completes the registration of a new WebAuthn credential.
+
+**Request Headers:**
+
+```
+Authorization: Bearer <access_token>
+```
+
+**Request Body:**
+
+```json
+{
+  "id": "credentialId",
+  "rawId": "base64RawId",
+  "response": {
+    "attestationObject": "base64AttestationObject",
+    "clientDataJSON": "base64ClientDataJSON"
+  },
+  "type": "public-key"
+}
+```
+
+**Success Response: 200 OK**
+
+```json
+{
+  "status": "success",
+  "message": "WebAuthn credential registered successfully"
+}
+```
+
+**Error Responses:**
+
+- `401 Unauthorized`: Authentication required
+- `400 Bad Request`: Invalid registration response
+- `500 Internal Server Error`: Server error
+
+### Start WebAuthn Login
+
+`POST /api/auth/webauthn/login/start`
+
+Starts the WebAuthn authentication process.
+
+**Request Body:**
+
+```json
+{
+  "username_or_email": "johndoe"
+}
+```
+
+**Success Response: 200 OK**
+
+```json
+{
+  "challenge": "randomChallenge",
+  "timeout": 60000,
+  "rpId": "better-auth.example.com",
+  "allowCredentials": [
+    {
+      "id": "base64CredentialId",
+      "type": "public-key"
+    }
+  ],
+  "userVerification": "preferred"
+}
+```
+
+**Error Responses:**
+
+- `400 Bad Request`: User not found or has no WebAuthn credentials
+- `500 Internal Server Error`: Server error
+
+### Complete WebAuthn Login
+
+`POST /api/auth/webauthn/login/complete`
+
+Completes the WebAuthn authentication process.
+
+**Request Body:**
+
+```json
+{
+  "id": "credentialId",
+  "rawId": "base64RawId",
+  "response": {
+    "authenticatorData": "base64AuthenticatorData",
+    "clientDataJSON": "base64ClientDataJSON",
+    "signature": "base64Signature",
+    "userHandle": "base64UserHandle"
+  },
+  "type": "public-key"
+}
+```
+
+**Success Response: 200 OK**
+
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refresh_token": "a722c63c-d1d1-4859-8fc9-27b2b8f69d0a",
+  "token_type": "Bearer",
+  "expires_in": 3600,
+  "user": {
+    "id": "e29a9d8a-7c2f-4bc1-a533-b7d60979bf54",
+    "username": "johndoe",
+    "email": "john@example.com",
+    "is_email_verified": false,
+    "mfa_enabled": false
+  }
+}
+```
+
+**Error Responses:**
+
+- `400 Bad Request`: Invalid authentication response
+- `401 Unauthorized`: Authentication failed
+- `500 Internal Server Error`: Server error
+
+## Proxy Email Endpoints
+
+### Create Proxy Email
+
+`POST /api/email/create`
+
+Creates a new proxy email address.
+
+**Request Headers:**
+
+```
+Authorization: Bearer <access_token>
+```
+
+**Request Body:**
+
+```json
+{
+  "label": "Shopping Site"
+}
+```
+
+**Success Response: 201 Created**
+
+```json
+{
+  "proxy_address": "random123@proxy.betterauth.com",
+  "label": "Shopping Site",
+  "created_at": "2025-05-09T12:34:56Z",
+  "status": "Active"
+}
+```
+
+**Error Responses:**
+
+- `401 Unauthorized`: Authentication required
+- `500 Internal Server Error`: Server error
+
+### List Proxy Emails
+
+`GET /api/email/list`
+
+Lists all proxy email addresses for the current user.
+
+**Request Headers:**
+
+```
+Authorization: Bearer <access_token>
+```
+
+**Success Response: 200 OK**
+
+```json
+{
+  "proxy_emails": [
+    {
+      "proxy_address": "random123@proxy.betterauth.com",
+      "label": "Shopping Site",
+      "created_at": "2025-05-09T12:34:56Z",
+      "status": "Active",
+      "forwarding_enabled": true
+    },
+    {
+      "proxy_address": "random456@proxy.betterauth.com",
+      "label": "Social Media",
+      "created_at": "2025-05-08T10:22:33Z",
+      "status": "Active",
+      "forwarding_enabled": true
+    }
+  ]
+}
+```
+
+**Error Responses:**
+
+- `401 Unauthorized`: Authentication required
+- `500 Internal Server Error`: Server error
+
+### Update Proxy Email Status
+
+`PATCH /api/email/status`
+
+Updates the status of a proxy email address.
+
+**Request Headers:**
+
+```
+Authorization: Bearer <access_token>
+```
+
+**Request Body:**
+
+```json
+{
+  "proxy_address": "random123@proxy.betterauth.com",
+  "status": "Disabled",
+  "forwarding_enabled": false
+}
+```
+
+**Success Response: 200 OK**
+
+```json
+{
+  "proxy_address": "random123@proxy.betterauth.com",
+  "status": "Disabled",
+  "forwarding_enabled": false
+}
+```
+
+**Error Responses:**
+
+- `401 Unauthorized`: Authentication required
+- `404 Not Found`: Proxy email not found
+- `500 Internal Server Error`: Server error
+
+## Risk Scoring Endpoints
+
+### Get Risk Analysis
+
+`GET /api/risk/analysis`
+
+Returns the risk analysis for the current user's recent logins.
+
+**Request Headers:**
+
+```
+Authorization: Bearer <access_token>
+```
+
+**Success Response: 200 OK**
+
+```json
+{
+  "risk_score": 25,
+  "risk_factors": [
+    {
+      "name": "new_device",
+      "description": "Login from a new device",
+      "weight": 20
+    },
+    {
+      "name": "unusual_time",
+      "description": "Login at an unusual time for this user",
+      "weight": 15
+    }
+  ],
+  "recommended_action": "RequireMfa"
+}
+```
+
+**Error Responses:**
+
+- `401 Unauthorized`: Authentication required
+- `500 Internal Server Error`: Server error
+
+## Breach Detection Endpoints
+
+### Check Breach Status
+
+`GET /api/security/breach-check`
+
+Checks if the user's credentials have been compromised in known breaches.
+
+**Request Headers:**
+
+```
+Authorization: Bearer <access_token>
+```
+
+**Success Response: 200 OK**
+
+```json
+{
+  "is_breached": false,
+  "breaches": [],
+  "password_compromised": false,
+  "action_required": "None"
+}
+```
+
+**Error Responses:**
+
+- `401 Unauthorized`: Authentication required
+- `500 Internal Server Error`: Server error
+
+## Accessibility Endpoints
+
+### Get Accessibility Preferences
+
+`GET /api/accessibility/preferences`
+
+Returns the user's accessibility preferences.
+
+**Request Headers:**
+
+```
+Authorization: Bearer <access_token>
+```
+
+**Success Response: 200 OK**
+
+```json
+{
+  "high_contrast": false,
+  "large_text": true,
+  "screen_reader_optimized": false,
+  "reduced_motion": true,
+  "voice_commands_enabled": false,
+  "keyboard_navigation": true
+}
+```
+
+**Error Responses:**
+
+- `401 Unauthorized`: Authentication required
+- `500 Internal Server Error`: Server error
+
+### Update Accessibility Preferences
+
+`PATCH /api/accessibility/preferences`
+
+Updates the user's accessibility preferences.
+
+**Request Headers:**
+
+```
+Authorization: Bearer <access_token>
+```
+
+**Request Body:**
+
+```json
+{
+  "high_contrast": true,
+  "large_text": true
+}
+```
+
+**Success Response: 200 OK**
+
+```json
+{
+  "high_contrast": true,
+  "large_text": true,
+  "screen_reader_optimized": false,
+  "reduced_motion": true,
+  "voice_commands_enabled": false,
+  "keyboard_navigation": true
+}
+```
+
+**Error Responses:**
+
+- `401 Unauthorized`: Authentication required
+- `500 Internal Server Error`: Server error

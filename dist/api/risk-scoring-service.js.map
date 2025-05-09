@@ -1,0 +1,1 @@
+{"version":3,"file":"risk-scoring-service.js","sourceRoot":"","sources":["../../src/api/risk-scoring-service.ts"],"names":[],"mappings":";AAAA;;GAEG;;;AAKH,MAAa,kBAAkB;IAG7B,YAAY,SAAoB;QAC9B,IAAI,CAAC,SAAS,GAAG,SAAS,CAAC;IAC7B,CAAC;IAED;;OAEG;IACI,KAAK,CAAC,eAAe;QAC1B,OAAO,IAAI,CAAC,SAAS,CAAC,GAAG,CAAuB,oBAAoB,CAAC,CAAC;IACxE,CAAC;CACF;AAbD,gDAaC"}
