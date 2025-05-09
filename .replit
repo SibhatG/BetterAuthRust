@@ -1,0 +1,32 @@
+modules = ["rust", "postgresql-16"]
+
+[nix]
+channel = "stable-24_05"
+packages = ["openssl", "pkg-config"]
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Rust Auth Server"
+
+[[workflows.workflow]]
+name = "Rust Auth Server"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "bash -c \"cd $(pwd) && cargo clean && cargo run\""
+
+[deployment]
+run = ["sh", "-c", "bash -c \"cd $(pwd) && cargo clean && cargo run\""]
+
+[[ports]]
+localPort = 5000
+externalPort = 80
