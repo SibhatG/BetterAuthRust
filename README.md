@@ -203,7 +203,3 @@ try {
   }
 }
 ```
-
-## License
-
-MIT
