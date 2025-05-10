@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BetterAuth - Passwordless Login Demo</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 5px;
+        }
+        .subtitle {
+            color: #666;
+            font-style: italic;
+        }
+        .accessibility-controls {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .control-group {
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+        button:hover {
+            background-color: #3367d6;
+        }
+        button.active {
+            background-color: #34a853;
+        }
+        .login-wrapper {
+            margin-top: 30px;
+        }
+        hr {
+            margin: 30px 0;
+            border: 0;
+            border-top: 1px solid #eee;
+        }
+        .feature-list {
+            margin-top: 30px;
+        }
+        .feature-list li {
+            margin-bottom: 10px;
+        }
+        code {
+            background-color: #f5f5f5;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        .demo-section {
+            margin-top: 40px;
+        }
+        .keyboard-shortcuts {
+            background-color: #fff8e1;
+            border-left: 4px solid #ffc107;
+            padding: 10px 15px;
+            margin: 20px 0;
+        }
+        footer {
+            margin-top: 50px;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>BetterAuth</h1>
+        <p class="subtitle">Passwordless Authentication with Accessibility</p>
+    </header>
+
+    <section class="accessibility-controls">
+        <h2>Accessibility Controls</h2>
+        <p>Customize your experience with these accessibility options:</p>
+        
+        <div class="control-group">
+            <button id="high-contrast">High Contrast Mode</button>
+            <button id="large-text">Large Text Mode</button>
+            <button id="reduced-motion">Reduced Motion</button>
+            <button id="screen-reader">Screen Reader Optimizations</button>
+        </div>
+        
+        <div class="keyboard-shortcuts">
+            <h3>Keyboard Shortcuts</h3>
+            <ul>
+                <li><kbd>Alt+Shift+C</kbd>: Toggle high contrast mode</li>
+                <li><kbd>Alt+Shift+L</kbd>: Toggle large text mode</li>
+                <li><kbd>Alt+Shift+M</kbd>: Toggle reduced motion mode</li>
+                <li><kbd>Alt+Shift+S</kbd>: Toggle screen reader optimizations</li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="demo-section">
+        <h2>Passwordless Login Demo</h2>
+        <p>Experience our secure and accessible passwordless authentication:</p>
+        
+        <div id="login-container" class="login-wrapper">
+            <!-- Login form will be inserted here by JavaScript -->
+        </div>
+    </section>
+
+    <hr>
+
+    <section class="feature-list">
+        <h2>Key Features</h2>
+        <ul>
+            <li><strong>WebAuthn Integration</strong>: Use biometrics or security keys for secure authentication</li>
+            <li><strong>High Contrast Mode</strong>: Improved visibility for users with visual impairments</li>
+            <li><strong>Large Text Mode</strong>: Increased font sizes for better readability</li>
+            <li><strong>Keyboard Navigation</strong>: Full keyboard support with visible focus indicators</li>
+            <li><strong>Screen Reader Support</strong>: ARIA attributes and optimized content for screen readers</li>
+            <li><strong>Reduced Motion</strong>: Minimized animations for users with vestibular disorders</li>
+        </ul>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 BetterAuth - Advanced Authentication System</p>
+    </footer>
+
+    <!-- Include the client scripts -->
+    <script src="dist/bundle.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize the BetterAuth client
+            const client = BetterAuth.createClient('http://localhost:5000');
+            
+            // Get accessibility utilities
+            const accessibilityUtils = BetterAuth.accessibilityUtils;
+            
+            // Apply default accessibility settings
+            accessibilityUtils.applyPreferences();
+            
+            // Create the passwordless login form
+            client.createAccessiblePasswordlessLoginForm(
+                'login-container',
+                (message) => {
+                    alert(`Success: ${message}`);
+                    console.log('Login success:', message);
+                },
+                (error) => {
+                    alert(`Error: ${error.message}`);
+                    console.error('Login error:', error);
+                }
+            );
+            
+            // Set up accessibility control buttons
+            const highContrastBtn = document.getElementById('high-contrast');
+            const largeTextBtn = document.getElementById('large-text');
+            const reducedMotionBtn = document.getElementById('reduced-motion');
+            const screenReaderBtn = document.getElementById('screen-reader');
+            
+            // Update button states based on current preferences
+            function updateButtonStates() {
+                const prefs = accessibilityUtils.getPreferences();
+                highContrastBtn.classList.toggle('active', prefs.high_contrast);
+                largeTextBtn.classList.toggle('active', prefs.large_text);
+                reducedMotionBtn.classList.toggle('active', prefs.reduced_motion);
+                screenReaderBtn.classList.toggle('active', prefs.screen_reader_optimized);
+            }
+            
+            // Initialize button states
+            updateButtonStates();
+            
+            // Toggle high contrast mode
+            highContrastBtn.addEventListener('click', () => {
+                const prefs = accessibilityUtils.getPreferences();
+                accessibilityUtils.updatePreferences({
+                    high_contrast: !prefs.high_contrast
+                });
+                updateButtonStates();
+            });
+            
+            // Toggle large text mode
+            largeTextBtn.addEventListener('click', () => {
+                const prefs = accessibilityUtils.getPreferences();
+                accessibilityUtils.updatePreferences({
+                    large_text: !prefs.large_text
+                });
+                updateButtonStates();
+            });
+            
+            // Toggle reduced motion
+            reducedMotionBtn.addEventListener('click', () => {
+                const prefs = accessibilityUtils.getPreferences();
+                accessibilityUtils.updatePreferences({
+                    reduced_motion: !prefs.reduced_motion
+                });
+                updateButtonStates();
+            });
+            
+            // Toggle screen reader optimizations
+            screenReaderBtn.addEventListener('click', () => {
+                const prefs = accessibilityUtils.getPreferences();
+                accessibilityUtils.updatePreferences({
+                    screen_reader_optimized: !prefs.screen_reader_optimized
+                });
+                updateButtonStates();
+            });
+            
+            // Set up keyboard shortcuts
+            accessibilityUtils.setupKeyboardShortcuts({
+                'toggle-high-contrast': () => {
+                    highContrastBtn.click();
+                },
+                'toggle-large-text': () => {
+                    largeTextBtn.click();
+                },
+                'toggle-reduced-motion': () => {
+                    reducedMotionBtn.click();
+                },
+                'toggle-screen-reader': () => {
+                    screenReaderBtn.click();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -7,6 +7,8 @@ use crate::models::{
     DisableMfaRequest, EnableMfaRequest, LoginRequest, LogoutRequest, MfaLoginRequest,
     MfaRecoveryRequest, PasswordResetConfirmRequest, PasswordResetRequest, RefreshTokenRequest,
     RegisterRequest, VerifyEmailRequest, VerifyMfaRequest,
+    PasswordlessRegisterStartRequest, PasswordlessRegisterCompleteRequest,
+    PasswordlessLoginStartRequest, PasswordlessLoginCompleteRequest,
 };
 use crate::services::auth::AuthService;
 
@@ -28,7 +30,11 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
             .service(mfa_disable)
             .service(mfa_recovery_codes)
             .service(mfa_verify)
-            .service(mfa_recovery),
+            .service(mfa_recovery)
+            .service(passwordless_register_start)
+            .service(passwordless_register_complete)
+            .service(passwordless_login_start)
+            .service(passwordless_login_complete),
     );
 }
 
@@ -284,6 +290,78 @@ async fn mfa_recovery(
     
     let response = auth_service
         .mfa_recovery(recovery_data.into_inner(), ip, user_agent)
+        .await?;
+    
+    Ok(HttpResponse::Ok().json(response))
+}
+
+/// Start passwordless registration process
+#[actix_web::post("/passwordless-register-start")]
+async fn passwordless_register_start(
+    auth_service: web::Data<AuthService>,
+    register_data: web::Json<PasswordlessRegisterStartRequest>,
+) -> Result<HttpResponse, AuthError> {
+    register_data.validate()?;
+    
+    let response = auth_service
+        .passwordless_register_start(register_data.into_inner())
+        .await?;
+    
+    Ok(HttpResponse::Ok().json(response))
+}
+
+/// Complete passwordless registration
+#[actix_web::post("/passwordless-register-complete")]
+async fn passwordless_register_complete(
+    auth_service: web::Data<AuthService>,
+    register_data: web::Json<PasswordlessRegisterCompleteRequest>,
+    req: HttpRequest,
+) -> Result<HttpResponse, AuthError> {
+    let ip = req.connection_info().realip_remote_addr()
+        .map(|s| s.to_string());
+    
+    let user_agent = req.headers().get("User-Agent")
+        .and_then(|h| h.to_str().ok())
+        .map(|s| s.to_string());
+    
+    let response = auth_service
+        .passwordless_register_complete(register_data.into_inner(), ip, user_agent)
+        .await?;
+    
+    Ok(HttpResponse::Created().json(response))
+}
+
+/// Start passwordless login process
+#[actix_web::post("/passwordless-login-start")]
+async fn passwordless_login_start(
+    auth_service: web::Data<AuthService>,
+    login_data: web::Json<PasswordlessLoginStartRequest>,
+) -> Result<HttpResponse, AuthError> {
+    login_data.validate()?;
+    
+    let response = auth_service
+        .passwordless_login_start(login_data.into_inner())
+        .await?;
+    
+    Ok(HttpResponse::Ok().json(response))
+}
+
+/// Complete passwordless login
+#[actix_web::post("/passwordless-login-complete")]
+async fn passwordless_login_complete(
+    auth_service: web::Data<AuthService>,
+    login_data: web::Json<PasswordlessLoginCompleteRequest>,
+    req: HttpRequest,
+) -> Result<HttpResponse, AuthError> {
+    let ip = req.connection_info().realip_remote_addr()
+        .map(|s| s.to_string());
+    
+    let user_agent = req.headers().get("User-Agent")
+        .and_then(|h| h.to_str().ok())
+        .map(|s| s.to_string());
+    
+    let response = auth_service
+        .passwordless_login_complete(login_data.into_inner(), ip, user_agent)
         .await?;
     
     Ok(HttpResponse::Ok().json(response))
